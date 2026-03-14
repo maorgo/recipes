@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}{{ recipe.title }} – מתכונים{% endblock %}
+
+{% block content %}
+  <article>
+    <h1 class="mb-1">{{ recipe.title }}</h1>
+    <p class="text-muted small mb-3">
+      {{ recipe.created_at.strftime('%d/%m/%Y %H:%M') }}
+      {% if recipe.tags %}
+        &bull;
+        {% for t in recipe.tags %}
+          <a href="{{ url_for('tag', tag_id=t.id) }}" class="badge bg-secondary text-decoration-none me-1">{{ t.name }}</a>
+        {% endfor %}
+      {% endif %}
+    </p>
+
+    {% if recipe.ingredients %}
+      <h4 class="mt-4 mb-2">מצרכים</h4>
+      <div class="recipe-body mb-4">
+        {{ recipe.ingredients | replace('\n', '<br>') | safe }}
+      </div>
+    {% endif %}
+
+    {% if recipe.instructions %}
+      <h4 class="mt-4 mb-2">תהליך הכנה</h4>
+      <div class="recipe-body mb-4">
+        {{ rendered_instructions }}
+      </div>
+    {% endif %}
+
+    {% if recipe.videos %}
+      <h4 class="mt-4 mb-3">סרטונים</h4>
+      <div class="row g-4 mb-4">
+        {% for vid in recipe.videos %}
+          <div class="col-12 col-md-6">
+            {% if vid.title %}
+              <p class="fw-bold mb-1">{{ vid.title }}</p>
+            {% endif %}
+            <video
+              controls
+              preload="metadata"
+              class="w-100 rounded shadow-sm"
+              style="background:#000;"
+            >
+              <source src="{{ url_for('static', filename='videos/' ~ vid.filename) }}" />
+              הדפדפן שלך אינו תומך בהפעלת וידאו.
+            </video>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </article>
+
+  <hr />
+
+  {# Vote bar #}
+  <section id="votes" class="my-4 d-flex align-items-center gap-3">
+    <form method="post" action="{{ url_for('vote', recipe_id=recipe.id) }}">
+      <input type="hidden" name="value" value="1" />
+      <button
+        type="submit"
+        class="btn {% if visitor_vote == 1 %}btn-success{% else %}btn-outline-success{% endif %} btn-lg"
+        title="אהבתי"
+      >👍</button>
+    </form>
+
+    <span class="fs-4 fw-bold {% if score > 0 %}text-success{% elif score < 0 %}text-danger{% else %}text-muted{% endif %}">
+      {{ score }}
+    </span>
+
+    <form method="post" action="{{ url_for('vote', recipe_id=recipe.id) }}">
+      <input type="hidden" name="value" value="-1" />
+      <button
+        type="submit"
+        class="btn {% if visitor_vote == -1 %}btn-danger{% else %}btn-outline-danger{% endif %} btn-lg"
+        title="לא אהבתי"
+      >👎</button>
+    </form>
+
+    <span class="text-muted small">
+      {% if visitor_vote == 1 %}סימנת שאהבת
+      {% elif visitor_vote == -1 %}סימנת שלא אהבת
+      {% else %}לחץ כדי לדרג
+      {% endif %}
+      &nbsp;·&nbsp; לחיצה חוזרת מבטלת
+    </span>
+  </section>
+
+  <hr />
+
+  <section id="comments">
+    <h4 class="mb-3">תגובות ({{ recipe.comments | length }})</h4>
+
+    {% if recipe.comments %}
+      {% for c in recipe.comments %}
+        <div class="card mb-2">
+          <div class="card-body py-2">
+            <strong>{{ c.author_name }}</strong>
+            <span class="text-muted small ms-2">{{ c.created_at.strftime('%d/%m/%Y %H:%M') }}</span>
+            <p class="mb-0 mt-1">{{ c.body }}</p>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p class="text-muted">אין תגובות עדיין. היה הראשון!</p>
+    {% endif %}
+
+    <div class="card mt-4">
+      <div class="card-header">הוסף תגובה</div>
+      <div class="card-body">
+        <form method="post" action="{{ url_for('add_comment', recipe_id=recipe.id) }}">
+          <div class="mb-3">
+            <label class="form-label" for="author_name">שם</label>
+            <input
+              type="text"
+              class="form-control"
+              id="author_name"
+              name="author_name"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="comment_body">תגובה</label>
+            <textarea class="form-control" id="comment_body" name="body" rows="3" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">שליחה</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <div class="mt-4">
+    <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">← חזרה לרשימה</a>
+  </div>
+{% endblock %}

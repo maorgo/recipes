@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}ניהול תגובות – מתכונים{% endblock %}
+
+{% block content %}
+  <h2 class="mb-4">ניהול תגובות</h2>
+
+  {% if not comments %}
+    <p class="text-muted">אין תגובות עדיין.</p>
+  {% else %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>מתכון</th>
+            <th>שם</th>
+            <th>תגובה</th>
+            <th>תאריך</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in comments %}
+            <tr>
+              <td>
+                <a href="{{ url_for('recipe', recipe_id=c.recipe_id) }}" class="text-decoration-none">
+                  {{ c.recipe.title }}
+                </a>
+              </td>
+              <td>{{ c.author_name }}</td>
+              <td class="text-muted small">{{ c.body[:80] ~ '...' if c.body|length > 80 else c.body }}</td>
+              <td class="text-muted small">{{ c.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+              <td class="text-end">
+                <form
+                  method="post"
+                  action="{{ url_for('admin_comment_delete', comment_id=c.id) }}"
+                  class="d-inline"
+                  onsubmit="return confirm('האם למחוק את התגובה?')"
+                >
+                  <button type="submit" class="btn btn-sm btn-outline-danger">מחיקה</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+
+  <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary mt-3">← לוח בקרה</a>
+{% endblock %}

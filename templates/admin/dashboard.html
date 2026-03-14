@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}פאנל ניהול – מתכונים{% endblock %}
+
+{% block content %}
+  <h2 class="mb-4">פאנל ניהול</h2>
+
+  <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
+    <div class="col">
+      <div class="card text-center shadow-sm">
+        <div class="card-body">
+          <h1 class="display-4 fw-bold text-primary">{{ recipe_count }}</h1>
+          <p class="card-text">מתכונים</p>
+          <a href="{{ url_for('admin_recipes') }}" class="btn btn-sm btn-primary">ניהול מתכונים</a>
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card text-center shadow-sm">
+        <div class="card-body">
+          <h1 class="display-4 fw-bold text-secondary">{{ tag_count }}</h1>
+          <p class="card-text">תגיות</p>
+          <a href="{{ url_for('admin_tags') }}" class="btn btn-sm btn-secondary">ניהול תגיות</a>
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card text-center shadow-sm">
+        <div class="card-body">
+          <h1 class="display-4 fw-bold text-info">{{ comment_count }}</h1>
+          <p class="card-text">תגובות</p>
+          <a href="{{ url_for('admin_comments') }}" class="btn btn-sm btn-info">ניהול תגובות</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <a href="{{ url_for('admin_recipe_new') }}" class="btn btn-success">+ הוספת מתכון חדש</a>
+{% endblock %}

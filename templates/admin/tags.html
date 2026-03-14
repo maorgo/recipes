@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}ניהול תגיות – מתכונים{% endblock %}
+
+{% block content %}
+  <h2 class="mb-4">ניהול תגיות</h2>
+
+  <div class="card mb-4 shadow-sm" style="max-width:400px;">
+    <div class="card-header fw-bold">הוסף תגית חדשה</div>
+    <div class="card-body">
+      <form method="post" class="d-flex gap-2">
+        <input
+          type="text"
+          class="form-control"
+          name="name"
+          placeholder="שם התגית בעברית"
+          required
+        />
+        <button type="submit" class="btn btn-success">הוסף</button>
+      </form>
+    </div>
+  </div>
+
+  {% if not tags %}
+    <p class="text-muted">אין תגיות עדיין.</p>
+  {% else %}
+    <div class="table-responsive" style="max-width:500px;">
+      <table class="table table-hover align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>תגית</th>
+            <th>מתכונים</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in tags %}
+            <tr>
+              <td>
+                <a href="{{ url_for('tag', tag_id=t.id) }}" class="badge bg-secondary text-decoration-none fs-6">
+                  {{ t.name }}
+                </a>
+              </td>
+              <td>{{ t.recipes | length }}</td>
+              <td class="text-end">
+                <form
+                  method="post"
+                  action="{{ url_for('admin_tag_delete', tag_id=t.id) }}"
+                  class="d-inline"
+                  onsubmit="return confirm('האם למחוק את התגית {{ t.name }}?')"
+                >
+                  <button type="submit" class="btn btn-sm btn-outline-danger">מחיקה</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+
+  <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary mt-3">← לוח בקרה</a>
+{% endblock %}

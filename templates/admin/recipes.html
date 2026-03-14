@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}ניהול מתכונים – מתכונים{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>ניהול מתכונים</h2>
+    <a href="{{ url_for('admin_recipe_new') }}" class="btn btn-success">+ מתכון חדש</a>
+  </div>
+
+  {% if not recipes %}
+    <p class="text-muted">אין מתכונים עדיין.</p>
+  {% else %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>כותרת</th>
+            <th>תגיות</th>
+            <th>תגובות</th>
+            <th>תאריך</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in recipes %}
+            <tr>
+              <td>
+                <a href="{{ url_for('recipe', recipe_id=r.id) }}" class="text-decoration-none">
+                  {{ r.title }}
+                </a>
+              </td>
+              <td>
+                {% for t in r.tags %}
+                  <span class="badge bg-secondary">{{ t.name }}</span>
+                {% endfor %}
+              </td>
+              <td>{{ r.comments | length }}</td>
+              <td class="text-muted small">{{ r.created_at.strftime('%d/%m/%Y') }}</td>
+              <td class="text-end">
+                <a
+                  href="{{ url_for('admin_recipe_edit', recipe_id=r.id) }}"
+                  class="btn btn-sm btn-outline-primary me-1"
+                >עריכה</a>
+                <form
+                  method="post"
+                  action="{{ url_for('admin_recipe_delete', recipe_id=r.id) }}"
+                  class="d-inline"
+                  onsubmit="return confirm('האם את/ה בטוח/ה שברצונך למחוק את המתכון?')"
+                >
+                  <button type="submit" class="btn btn-sm btn-outline-danger">מחיקה</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+
+  <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary mt-3">← לוח בקרה</a>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}תוצאות חיפוש: {{ query }} – מתכונים{% endblock %}
+
+{% block content %}
+  <h2 class="mb-4">
+    תוצאות חיפוש עבור: <em>{{ query }}</em>
+  </h2>
+
+  {% if not query %}
+    <p class="text-muted">הזן מונח חיפוש בשדה שלמעלה.</p>
+  {% elif not recipes %}
+    <p class="text-muted">לא נמצאו תוצאות עבור "{{ query }}".</p>
+  {% else %}
+    <p class="text-muted mb-3">נמצאו {{ recipes | length }} תוצאות.</p>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+      {% for r in recipes %}
+        <div class="col">
+          <div class="card h-100 shadow-sm">
+            {% if r.images %}
+              <img
+                src="{{ url_for('static', filename='uploads/' ~ r.images[0].filename) }}"
+                class="card-img-top recipe-cover"
+                alt="{{ r.title }}"
+              />
+            {% endif %}
+            <div class="card-body">
+              <h5 class="card-title">
+                <a href="{{ url_for('recipe', recipe_id=r.id) }}" class="text-decoration-none text-dark">
+                  {{ r.title }}
+                </a>
+              </h5>
+              {% set preview = r.ingredients if r.ingredients else r.instructions %}
+              <p class="card-text text-muted small">
+                {{ preview[:120] ~ '...' if preview|length > 120 else preview }}
+              </p>
+            </div>
+            <div class="card-footer bg-transparent">
+              {% for t in r.tags %}
+                <a href="{{ url_for('tag', tag_id=t.id) }}" class="badge bg-secondary text-decoration-none me-1">
+                  {{ t.name }}
+                </a>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endblock %}

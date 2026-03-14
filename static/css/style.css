@@ -1,0 +1,39 @@
+/* Hebrew font */
+body {
+  font-family: 'Heebo', 'Arial', sans-serif;
+}
+
+/* Recipe body text — readable line height */
+.recipe-body {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  white-space: pre-wrap;
+}
+
+/* Fixed-height cover images on cards */
+.recipe-cover {
+  height: 200px;
+  object-fit: cover;
+}
+
+/* Slightly softer card borders */
+.card {
+  border: 1px solid #e0e0e0;
+}
+
+/* Navbar brand spacing */
+.navbar-brand {
+  font-size: 1.4rem;
+  letter-spacing: 0.02em;
+}
+
+/* Keep footer at the bottom */
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1;
+}

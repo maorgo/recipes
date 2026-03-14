@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block title %}
+  {% if recipe %}עריכת מתכון{% else %}הוספת מתכון{% endif %} – מתכונים
+{% endblock %}
+
+{% block content %}
+  <h2 class="mb-4">{% if recipe %}עריכת מתכון{% else %}הוספת מתכון חדש{% endif %}</h2>
+
+  <form method="post" enctype="multipart/form-data">
+    {# Title #}
+    <div class="mb-3">
+      <label class="form-label fw-bold" for="title">כותרת</label>
+      <input
+        type="text"
+        class="form-control"
+        id="title"
+        name="title"
+        value="{{ recipe.title if recipe else '' }}"
+        required
+      />
+    </div>
+
+    {# Ingredients #}
+    <div class="mb-3">
+      <label class="form-label fw-bold" for="ingredients">מצרכים</label>
+      <textarea class="form-control" id="ingredients" name="ingredients" rows="6" placeholder="מצרך אחד בכל שורה">{{ recipe.ingredients if recipe else '' }}</textarea>
+    </div>
+
+    {# Instructions #}
+    <div class="mb-3">
+      <label class="form-label fw-bold" for="instructions">תהליך הכנה</label>
+      <textarea class="form-control" id="instructions" name="instructions" rows="8" placeholder="שלבי ההכנה">{{ recipe.instructions if recipe else '' }}</textarea>
+      <div class="form-text">
+        כדי להכניס תמונה בתוך הטקסט, הוסף את הצלקית <code>[תמונה 1]</code>, <code>[תמונה 2]</code> וכו׳ בנקודה הרצויה.
+        תמונות ללא צלקית יוצגו בסוף ההכנה.
+      </div>
+    </div>
+
+    {# Tags #}
+    {% if all_tags %}
+      <div class="mb-3">
+        <label class="form-label fw-bold">תגיות</label>
+        <div class="d-flex flex-wrap gap-2">
+          {% set selected_ids = recipe.tags | map(attribute='id') | list if recipe else [] %}
+          {% for t in all_tags %}
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                name="tag_ids"
+                value="{{ t.id }}"
+                id="tag_{{ t.id }}"
+                {% if t.id in selected_ids %}checked{% endif %}
+              />
+              <label class="form-check-label" for="tag_{{ t.id }}">{{ t.name }}</label>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    {# Existing images (edit mode only) #}
+    {% if recipe and recipe.images %}
+      <div class="mb-3">
+        <label class="form-label fw-bold">תמונות קיימות</label>
+        <p class="form-text mt-0">השתמש במספר התמונה בטקסט הכנה כדי לקבוע היכן היא תופיע.</p>
+        <div class="row row-cols-2 row-cols-md-4 g-2">
+          {% for img in recipe.images %}
+            <div class="col text-center">
+              <div class="badge bg-primary mb-1 fs-6">[תמונה {{ loop.index }}]</div>
+              <img
+                src="{{ url_for('static', filename='uploads/' ~ img.filename) }}"
+                class="img-thumbnail d-block mx-auto mb-1"
+                style="max-height:120px; object-fit:cover;"
+                alt=""
+              />
+              <div class="form-check d-inline-flex align-items-center gap-1">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  name="delete_image_ids"
+                  value="{{ img.id }}"
+                  id="del_img_{{ img.id }}"
+                />
+                <label class="form-check-label text-danger small" for="del_img_{{ img.id }}">מחק</label>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    {# Upload new images #}
+    <div class="mb-3">
+      <label class="form-label fw-bold">העלאת תמונות חדשות</label>
+      <input
+        class="form-control mb-2"
+        type="file"
+        name="images"
+        accept="image/*"
+        multiple
+        id="imageUpload"
+      />
+      <div id="newImageNumbers" class="form-text"></div>
+      <small class="text-muted">
+        לאחר ההעלאה, התמונות ימוספרו ברצף אחרי התמונות הקיימות.
+        השתמש ב-<code>[תמונה N]</code> בתיבת תהליך ההכנה כדי לקבוע מיקום.
+      </small>
+    </div>
+
+    {# Existing videos (edit mode only) #}
+    {% if recipe and recipe.videos %}
+      <div class="mb-3">
+        <label class="form-label fw-bold">סרטונים קיימים</label>
+        <div class="row g-3">
+          {% for vid in recipe.videos %}
+            <div class="col-12 col-md-6">
+              <div class="card p-2">
+                <video
+                  src="{{ url_for('static', filename='videos/' ~ vid.filename) }}"
+                  class="w-100 rounded mb-2"
+                  style="max-height:160px; object-fit:contain; background:#000;"
+                  preload="metadata"
+                ></video>
+                <div class="small fw-bold mb-1">{{ vid.title if vid.title else vid.filename }}</div>
+                <div class="form-check d-inline-flex align-items-center gap-1">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    name="delete_video_ids"
+                    value="{{ vid.id }}"
+                    id="del_vid_{{ vid.id }}"
+                  />
+                  <label class="form-check-label text-danger small" for="del_vid_{{ vid.id }}">מחק סרטון</label>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    {# Upload new videos #}
+    <div class="mb-4">
+      <label class="form-label fw-bold">העלאת סרטונים</label>
+      <input
+        class="form-control mb-2"
+        type="file"
+        name="videos"
+        accept="video/mp4,video/webm,video/ogg,video/quicktime"
+        multiple
+        id="videoUpload"
+      />
+      <div id="videoTitleFields"></div>
+      <small class="text-muted">פורמטים נתמכים: mp4, webm, ogg, mov. הסרטונים יוצגו בסוף המתכון.</small>
+    </div>
+
+    <div class="d-flex gap-2">
+      <button type="submit" class="btn btn-primary">שמירה</button>
+      <a href="{{ url_for('admin_recipes') }}" class="btn btn-outline-secondary">ביטול</a>
+    </div>
+  </form>
+
+  <script>
+    // Show the placeholder number each new image will receive after upload
+    const existingCount = {{ recipe.images | length if recipe else 0 }};
+    document.getElementById('imageUpload').addEventListener('change', function () {
+      const container = document.getElementById('newImageNumbers');
+      if (!this.files.length) { container.textContent = ''; return; }
+      const parts = Array.from(this.files).map(function (file, i) {
+        return `<strong>[תמונה ${existingCount + i + 1}]</strong> — ${file.name}`;
+      });
+      container.innerHTML = 'מספרי התמונות החדשות: ' + parts.join(' &nbsp;|&nbsp; ');
+    });
+
+    // Render a title input for each selected video
+    document.getElementById('videoUpload').addEventListener('change', function () {
+      const container = document.getElementById('videoTitleFields');
+      container.innerHTML = '';
+      Array.from(this.files).forEach(function (file, i) {
+        const div = document.createElement('div');
+        div.className = 'mb-2 d-flex align-items-center gap-2';
+        div.innerHTML = `
+          <span class="small text-muted" style="min-width:160px;">${file.name}</span>
+          <input
+            type="text"
+            class="form-control form-control-sm"
+            name="video_titles"
+            placeholder="כותרת לסרטון (אופציונלי)"
+          />
+        `;
+        container.appendChild(div);
+      });
+    });
+  </script>
+{% endblock %}
